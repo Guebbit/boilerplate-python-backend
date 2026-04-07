@@ -1,11 +1,12 @@
 from bson import ObjectId
+from bson.errors import InvalidId
 from app.core.errors import AppError
 
 
 def to_object_id(value: str) -> ObjectId:
     try:
         return ObjectId(value)
-    except Exception as exc:  # noqa: BLE001
+    except InvalidId as exc:
         raise AppError(422, 'VALIDATION_ERROR', 'Invalid id format') from exc
 
 

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.controllers.products import ProductsController
@@ -20,7 +21,7 @@ def is_admin_optional(credentials: HTTPAuthorizationCredentials | None = Depends
     try:
         user = get_current_user(credentials=credentials, repos=repos)
         return bool(user.get('admin'))
-    except Exception:  # noqa: BLE001
+    except HTTPException:
         return False
 
 

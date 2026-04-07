@@ -85,15 +85,7 @@ class AuthService:
             raise AppError(422, 'VALIDATION_ERROR', 'Passwords do not match')
 
         now = datetime.now(timezone.utc)
-        users, _ = self.users_repo.list({'deletedAt': None}, 1, 10000)
-        found_user = None
-        for user in users:
-            for user_token in user.get('tokens', []):
-                if user_token.get('type') == 'password-reset' and user_token.get('token') == token and user_token.get('expiration') > now:
-                    found_user = user
-                    break
-            if found_user:
-                break
+        found_user = self.users_repo.find_by_active_token('password-reset', token, now)
 
         if not found_user:
             raise AppError(401, 'AUTH_INVALID_TOKEN', 'Invalid or expired reset token')
@@ -107,16 +99,7 @@ class AuthService:
 
     def refresh(self, token: str):
         now = datetime.now(timezone.utc)
-        users, _ = self.users_repo.list({'deletedAt': None}, 1, 10000)
-
-        owner = None
-        for user in users:
-            for saved in user.get('tokens', []):
-                if saved.get('type') == 'refresh' and saved.get('token') == token and saved.get('expiration') > now:
-                    owner = user
-                    break
-            if owner:
-                break
+        owner = self.users_repo.find_by_active_token('refresh', token, now)
 
         if not owner:
             raise AppError(401, 'AUTH_INVALID_TOKEN', 'Invalid refresh token')

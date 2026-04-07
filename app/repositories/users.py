@@ -47,3 +47,19 @@ class UsersRepository:
     def remove_expired_tokens(self, now: datetime):
         result = self.collection.update_many({}, {'$pull': {'tokens': {'expiration': {'$lte': now}}}})
         return result.modified_count
+
+    def find_by_active_token(self, token_type: str, token: str, now: datetime):
+        return normalize_id(
+            self.collection.find_one(
+                {
+                    'deletedAt': None,
+                    'tokens': {
+                        '$elemMatch': {
+                            'type': token_type,
+                            'token': token,
+                            'expiration': {'$gt': now},
+                        }
+                    },
+                }
+            )
+        )
