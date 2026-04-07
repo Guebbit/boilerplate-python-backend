@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 
 from app.controllers.cart import CartController
 from app.core.dependencies import get_current_user, get_repositories
@@ -25,7 +25,7 @@ def upsert_cart_item(payload: CartItemRequest, user=Depends(get_current_user), c
 
 
 @router.delete('')
-def clear_or_remove_cart(payload: RemoveCartItemRequest | None = None, user=Depends(get_current_user), controller: CartController = Depends(get_controller)):
+def clear_or_remove_cart(payload: RemoveCartItemRequest | None = Body(default=None), user=Depends(get_current_user), controller: CartController = Depends(get_controller)):
     product_id = payload.productId if payload else None
     return controller.remove(user, product_id)
 

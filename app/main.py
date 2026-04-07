@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 
@@ -12,6 +13,7 @@ from app.core.database import get_db
 from app.core.errors import AppError
 from app.core.middleware import RequestIdMiddleware, SecurityHeadersMiddleware, SimpleRateLimitMiddleware
 from app.core.responses import error_response
+from app.repositories.users import UsersRepository
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version='1.0.0')
@@ -23,7 +25,8 @@ app.add_middleware(SimpleRateLimitMiddleware)
 
 @app.on_event('startup')
 def startup_event():
-    get_db()
+    db = get_db()
+    UsersRepository(db.users).remove_expired_tokens(datetime.now(timezone.utc))
 
 
 @app.exception_handler(AppError)

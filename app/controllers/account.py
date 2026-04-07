@@ -16,8 +16,9 @@ class AccountController:
 
     def login(self, payload: dict, response: Response):
         data = self.auth_service.login(payload['email'], payload['password'])
-        response.set_cookie('jwt', data['refreshToken'], httponly=True, samesite='lax')
-        return success_response(200, 'AUTH_LOGIN_SUCCESS', data)
+        result = success_response(200, 'AUTH_LOGIN_SUCCESS', data)
+        result.set_cookie('jwt', data['refreshToken'], httponly=True, samesite='lax')
+        return result
 
     def reset(self, email: str):
         return success_response(200, 'AUTH_RESET_REQUESTED', self.auth_service.request_reset(email))
@@ -27,13 +28,15 @@ class AccountController:
 
     def refresh(self, token: str, response: Response):
         data = self.auth_service.refresh(token)
-        response.set_cookie('jwt', data['refreshToken'], httponly=True, samesite='lax')
-        return success_response(200, 'AUTH_REFRESHED', data)
+        result = success_response(200, 'AUTH_REFRESHED', data)
+        result.set_cookie('jwt', data['refreshToken'], httponly=True, samesite='lax')
+        return result
 
     def logout_all(self, user_id: str, response: Response):
         data = self.auth_service.logout_all(user_id)
-        response.delete_cookie('jwt')
-        return success_response(200, 'AUTH_LOGOUT_ALL', data)
+        result = success_response(200, 'AUTH_LOGOUT_ALL', data)
+        result.delete_cookie('jwt')
+        return result
 
     def delete_expired_tokens(self):
         return success_response(200, 'AUTH_TOKENS_CLEANED', self.auth_service.delete_expired_tokens())

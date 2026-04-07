@@ -17,7 +17,7 @@ class CartController:
 
     def summary(self, user: dict):
         cart = self.service.get_cart(user)
-        return success_response(200, 'CART_SUMMARY', cart['data']['summary'] if 'data' in cart else cart['summary'])
+        return success_response(200, 'CART_SUMMARY', cart['summary'])
 
     def checkout(self, user: dict, email: str | None = None, notes: str | None = None):
         return success_response(201, 'CHECKOUT_COMPLETED', self.service.checkout(user, email, notes))
